@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from pymongo import MongoClient
 from gradio_client import Client
 import datetime
@@ -6,13 +7,14 @@ import logging
 import re
 from bson import json_util
 import json
-from flask_cors import CORS
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+
+# Update CORS configuration
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000"], "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]}})
 
 # MongoDB setup
 mongo_client = MongoClient('mongodb://localhost:27017/')  # Replace with your MongoDB connection string
@@ -26,7 +28,7 @@ def create_user(user_id, base_info, tasks):
     new_user = {
         '_id': user_id,
         'base_info': base_info,
-        'tasks': tasks,
+        'tasks': [{'task': task, 'count': count} for task, count in tasks.items()],
         'actions': [],
         'created_at': datetime.datetime.now()
     }
@@ -46,9 +48,20 @@ def get_or_create_user(user_id, base_info=None, tasks=None):
     return user
 
 def update_user_actions(user_id, action):
+    user = users_collection.find_one({'_id': user_id})
+    if not user:
+        logging.error(f"User {user_id} not found")
+        return False
+
+    # Decrement task count if action matches a task
+    tasks = user.get('tasks', [])
+    for task in tasks:
+        if task['task'].lower() in action.lower():
+            task['count'] -= 1
+
     result = users_collection.update_one(
         {'_id': user_id},
-        {'$push': {'actions': {'action': action, 'timestamp': datetime.datetime.now()}}}
+        {'$push': {'actions': {'action': action, 'timestamp': datetime.datetime.now()}}, '$set': {'tasks': tasks}}
     )
     logging.debug(f"Updated user {user_id} actions. Modified count: {result.modified_count}")
     if result.modified_count == 0:
@@ -73,16 +86,14 @@ def generate_system_message(user_id):
     tasks = user.get('tasks', [])
     recent_actions = get_recent_actions(user_id)
 
-    system_message = f"You are a friendly and helpful chatbot for a person with Alzheimer's. "
-    system_message += f"The user's name is {base_info.get('name', 'Unknown')}. "
-    system_message += f"They were born on {base_info.get('birth_date', 'Unknown')}. "
-    
-    if 'children' in base_info:
-        children_info = ", ".join([f"{child['name']} ({child['age']})" for child in base_info['children']])
-        system_message += f"They have children: {children_info}. "
+    system_message = f"You are a friendly and helpful chatbot for a person with Alzheimer's. Keep answers concise! "
+
+    if base_info:
+        system_message += f"The user's base information: {json.dumps(base_info)}. "
 
     if tasks:
-        system_message += "Their daily tasks include: " + ", ".join(tasks) + ". "
+        task_messages = [f"{task['task']} ({task['count']} times left today)" for task in tasks]
+        system_message += "Their daily tasks include: " + ", ".join(task_messages) + ". "
 
     if recent_actions:
         action_messages = [f"{action['action']} on {action['timestamp'].strftime('%Y-%m-%d')}" for action in recent_actions]
@@ -92,20 +103,6 @@ def generate_system_message(user_id):
     
     logging.debug(f"Generated system message for user {user_id}: {system_message}")
     return system_message
-
-def detect_action(message):
-    action_patterns = [
-        r"I have (.+)",
-        r"I've (.+)",
-        r"I just (.+)",
-        r"I recently (.+)"
-    ]
-    for pattern in action_patterns:
-        match = re.search(pattern, message, re.IGNORECASE)
-        if match:
-            return match.group(1)
-    return None
-
 def chat_with_gradio(user_id, message, max_tokens=512, temperature=0.7, top_p=0.95):
     # Check if the message indicates an action and update user data
     action = detect_action(message)
@@ -153,8 +150,12 @@ def create_or_get_user():
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
 
-@app.route('/chat', methods=['POST'])
+@app.route('/chat', methods=['POST', 'OPTIONS'])
 def chat():
+    if request.method == 'OPTIONS':
+        # Preflgiht request. Reply successfully:
+        return jsonify({'success': True}), 200
+
     data = request.json
     response = chat_with_gradio(data['user_id'], data['message'])
     return jsonify({'response': response}), 200
