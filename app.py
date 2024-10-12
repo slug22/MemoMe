@@ -28,7 +28,7 @@ def create_user(user_id, base_info, tasks):
     new_user = {
         '_id': user_id,
         'base_info': base_info,
-        'tasks': [{'task': task, 'count': count} for task, count in tasks.items()],
+        'tasks': tasks,
         'actions': [],
         'created_at': datetime.datetime.now()
     }
@@ -48,20 +48,9 @@ def get_or_create_user(user_id, base_info=None, tasks=None):
     return user
 
 def update_user_actions(user_id, action):
-    user = users_collection.find_one({'_id': user_id})
-    if not user:
-        logging.error(f"User {user_id} not found")
-        return False
-
-    # Decrement task count if action matches a task
-    tasks = user.get('tasks', [])
-    for task in tasks:
-        if task['task'].lower() in action.lower():
-            task['count'] -= 1
-
     result = users_collection.update_one(
         {'_id': user_id},
-        {'$push': {'actions': {'action': action, 'timestamp': datetime.datetime.now()}}, '$set': {'tasks': tasks}}
+        {'$push': {'actions': {'action': action, 'timestamp': datetime.datetime.now()}}}
     )
     logging.debug(f"Updated user {user_id} actions. Modified count: {result.modified_count}")
     if result.modified_count == 0:
@@ -86,14 +75,14 @@ def generate_system_message(user_id):
     tasks = user.get('tasks', [])
     recent_actions = get_recent_actions(user_id)
 
-    system_message = f"You are a friendly and helpful chatbot for a person with Alzheimer's. Keep answers concise! "
-
-    if base_info:
-        system_message += f"The user's base information: {json.dumps(base_info)}. "
+    system_message = f"Response should be 15 words maximum, if a user has completed a task remove it from reminders otherwise output tasks and their remaining counts. The users name is {user_id}"
+   
+    
+    
+   
 
     if tasks:
-        task_messages = [f"{task['task']} ({task['count']} times left today)" for task in tasks]
-        system_message += "Their daily tasks include: " + ", ".join(task_messages) + ". "
+        system_message += "Their daily tasks include: " + ", ".join(tasks) + ". "
 
     if recent_actions:
         action_messages = [f"{action['action']} on {action['timestamp'].strftime('%Y-%m-%d')}" for action in recent_actions]
@@ -103,6 +92,20 @@ def generate_system_message(user_id):
     
     logging.debug(f"Generated system message for user {user_id}: {system_message}")
     return system_message
+
+def detect_action(message):
+    action_patterns = [
+        r"I have (.+)",
+        r"I've (.+)",
+        r"I just (.+)",
+        r"I recently (.+)"
+    ]
+    for pattern in action_patterns:
+        match = re.search(pattern, message, re.IGNORECASE)
+        if match:
+            return match.group(1)
+    return None
+
 def chat_with_gradio(user_id, message, max_tokens=512, temperature=0.7, top_p=0.95):
     # Check if the message indicates an action and update user data
     action = detect_action(message)
