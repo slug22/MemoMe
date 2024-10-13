@@ -93,7 +93,6 @@ def generate_system_message(user_id):
     base_info = user.get('base_info', {})
     tasks = user.get('tasks', [])
     today_actions = get_today_actions(user_id)
-    recent_inputs = get_recent_inputs(user_id, start=1, limit=1)  # Fetch only the last input
 
     # Calculate remaining tasks
     task_counts = {task: tasks.count(task) for task in set(tasks)}
@@ -104,23 +103,18 @@ def generate_system_message(user_id):
             if task_counts[task] <= 0:
                 del task_counts[task]
 
-    system_message = f"You are a friendly chatbot helping {user_id} remember to complete their tasks for the day. {user_id} is who I am. "
+    system_message = f"You are a friendly chatbot helping {user_id} remember to complete their tasks for the day. {user_id} is the only user you will talk to"
     system_message += base_info
 
     if task_counts:
         remaining_tasks = ", ".join([f"{task} ({count})" for task, count in task_counts.items()])
-        system_message += f"Tasks for today: {remaining_tasks}. "
+        system_message += f"The person's remaining tasks include: {remaining_tasks}. "
 
     if today_actions:
         action_messages = [f"{action['action']} on {action['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}" for action in today_actions]
         system_message += "Today's actions: " + ", ".join(action_messages) + ". "
 
-    # Include only the last input
-    if recent_inputs:
-        last_input = recent_inputs[0]['text']
-        system_message += f"Last input: {last_input}. "
-
-    system_message += "No one chat should exceed 15 words"
+    system_message += "Limit responses to 15 words max"
     
     logging.debug(f"Generated system message for user {user_id}: {system_message}")
     return system_message
@@ -134,7 +128,7 @@ def detect_action(user_id, message):
     return None
 
 def detect_help_words(message):
-    help_words = ["help", "emergency", "urgent", "panic", "scared", "lost", "confused"]
+    help_words = ["help", "emergency", "urgent", "panic", "scared", "lost", "confused", "helper", "assistance"]
     return any(word in message.lower() for word in help_words)
 
 def chat_with_gradio(user_id, message, max_tokens=512, temperature=0.7, top_p=0.95):
@@ -195,6 +189,15 @@ def create_or_get_user():
 def chat():
     data = request.json
     response = chat_with_gradio(data['user_id'], data['message'])
+    if response:
+        response = re.sub(r'\d+\.\s*', '', response)  # Remove any numbers followed by a period and optional space
+        response = re.sub(r'\s*\(.*?\)', '', response)  # Remove anything in parentheses
+        response = re.sub(r'[^:]*:', '', response)  # Remove any text preceding a colon
+        response = re.sub(r'\s+([,])', r'\1', response)  # Remove spaces before punctuation
+        response = re.sub(r'([.,!?])', r'\1 ', response)  # Ensure space after punctuation
+        response = re.sub(r'\s+([.,!?])', r'\1', response)  # Remove space before punctuation
+        response = re.sub(r'([.,!?])\s*$', '', response)  # Remove trailing punctuation if no text before it
+
     return jsonify({'response': response}), 200
 
 @app.route('/action', methods=['POST'])
