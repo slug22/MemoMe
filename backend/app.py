@@ -190,13 +190,14 @@ def chat():
     data = request.json
     response = chat_with_gradio(data['user_id'], data['message'])
     if response:
-        response = re.sub(r'\d+\.\s*', '', response)  # Remove any numbers followed by a period and optional space
+        response = re.sub(r'\d+\.\s*', ',', response)  # Remove any numbers followed by a period and optional space
         response = re.sub(r'\s*\(.*?\)', '', response)  # Remove anything in parentheses
         response = re.sub(r'[^:]*:', '', response)  # Remove any text preceding a colon
         response = re.sub(r'\s+([,])', r'\1', response)  # Remove spaces before punctuation
         response = re.sub(r'([.,!?])', r'\1 ', response)  # Ensure space after punctuation
         response = re.sub(r'\s+([.,!?])', r'\1', response)  # Remove space before punctuation
-        response = re.sub(r'([.,!?])\s*$', '', response)  # Remove trailing punctuation if no text before it
+        response = re.sub(r'\s*([.,!?])$', '', response)  # Remove trailing punctuation if no text before it
+        response = re.sub(r'^,', '', response)  # Remove comma at the beginning
 
     return jsonify({'response': response}), 200
 
