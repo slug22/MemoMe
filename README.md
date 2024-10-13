@@ -4,6 +4,12 @@ MemoMe is a web application designed to assist in caring for individuals with Al
 
 ## Features
 
+### Front Page (`FrontPage`)
+- Welcome to MemoME and logo
+- User text input field to login automatically without need to press any buttons
+- Alternatively, a caregiver may click the register button, which links to HomePage, to create a new profile for a patient.
+- Additionally, there's a check-in button, which links to the HelperPage, in case they want to view their patients' system inputs.
+
 ### Home Page (`HomePage`)
 - User registration form with fields for:
   - Name
@@ -61,6 +67,8 @@ MemoMe is a web application designed to assist in caring for individuals with Al
 3. Submit the form to create a user profile
 4. Use the Task Display page to view tasks and interact with the voice assistant
 5. Helpers can use the Helper Page to monitor user inputs and activities
+
+This app is a prospective design for standalone devices such as TVs, smartwatches, and wireless earplugs, which will be more accessible to the user.
 
 ## Note
 
