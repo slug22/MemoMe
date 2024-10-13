@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
 from pymongo import MongoClient
 from gradio_client import Client
 import datetime
@@ -7,14 +6,13 @@ import logging
 import re
 from bson import json_util
 import json
+from flask_cors import CORS
 
 # Set up logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
-
-# Update CORS configuration
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000"], "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"]}})
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 # MongoDB setup
 mongo_client = MongoClient('mongodb://localhost:27017/')  # Replace with your MongoDB connection string
@@ -48,22 +46,24 @@ def get_or_create_user(user_id, base_info=None, tasks=None):
     return user
 
 def update_user_actions(user_id, action):
+    today = datetime.datetime.now().date()
     result = users_collection.update_one(
         {'_id': user_id},
-        {'$push': {'actions': {'action': action, 'timestamp': datetime.datetime.now()}}}
+        {'$push': {'actions': {'action': action, 'timestamp': datetime.datetime.now(), 'date': today}}}
     )
     logging.debug(f"Updated user {user_id} actions. Modified count: {result.modified_count}")
     if result.modified_count == 0:
         logging.error(f"Failed to update actions for user {user_id}")
     return result.modified_count > 0
 
-def get_recent_actions(user_id, limit=5):
+def get_today_actions(user_id):
+    today = datetime.datetime.now().date()
     user = users_collection.find_one({'_id': user_id})
     if user and 'actions' in user:
-        actions = user['actions'][-limit:]
-        logging.debug(f"Retrieved {len(actions)} recent actions for user {user_id}")
+        actions = [action for action in user['actions'] if action['date'] == today]
+        logging.debug(f"Retrieved {len(actions)} actions for today for user {user_id}")
         return actions
-    logging.debug(f"No actions found for user {user_id}")
+    logging.debug(f"No actions found for today for user {user_id}")
     return []
 
 def generate_system_message(user_id):
@@ -73,27 +73,39 @@ def generate_system_message(user_id):
 
     base_info = user.get('base_info', {})
     tasks = user.get('tasks', [])
-    recent_actions = get_recent_actions(user_id)
+    today_actions = get_today_actions(user_id)
 
-    system_message = f"Response should be 15 words maximum, if a user has completed a task remove it from reminders otherwise output tasks and their remaining counts. The users name is {user_id}"
-   
-    
-    
-   
+    # Calculate remaining tasks
+    task_counts = {task: tasks.count(task) for task in set(tasks)}
+    for action in today_actions:
+        task = action['action']
+        if task in task_counts:
+            task_counts[task] -= 1
+            if task_counts[task] <= 0:
+                del task_counts[task]
 
-    if tasks:
-        system_message += "Their daily tasks include: " + ", ".join(tasks) + ". "
+    system_message = f"You are a friendly chatbot helping {user_id} remember to complete their tasks for the day. {user_id} is the only user you will talk to"
+    system_message += base_info
 
-    if recent_actions:
-        action_messages = [f"{action['action']} on {action['timestamp'].strftime('%Y-%m-%d')}" for action in recent_actions]
-        system_message += "Recent actions: " + ", ".join(action_messages) + ". "
+    if task_counts:
+        remaining_tasks = ", ".join([f"{task} ({count})" for task, count in task_counts.items()])
+        system_message += f"The person's remaining tasks include: {remaining_tasks}. "
 
-    system_message += "Please use this information to provide personalized and context-aware responses."
+    if today_actions:
+        action_messages = [f"{action['action']} on {action['timestamp'].strftime('%Y-%m-%d %H:%M:%S')}" for action in today_actions]
+        system_message += "Today's actions: " + ", ".join(action_messages) + ". "
+
+    system_message += "Limit responses to 15 words max"
     
     logging.debug(f"Generated system message for user {user_id}: {system_message}")
     return system_message
 
-def detect_action(message):
+def detect_action(user_id, message):
+    user = users_collection.find_one({'_id': user_id})
+    if not user:
+        return None
+
+    tasks = user.get('tasks', [])
     action_patterns = [
         r"I have (.+)",
         r"I've (.+)",
@@ -103,12 +115,14 @@ def detect_action(message):
     for pattern in action_patterns:
         match = re.search(pattern, message, re.IGNORECASE)
         if match:
-            return match.group(1)
+            action = match.group(1)
+            if action in tasks:
+                return action
     return None
 
 def chat_with_gradio(user_id, message, max_tokens=512, temperature=0.7, top_p=0.95):
     # Check if the message indicates an action and update user data
-    action = detect_action(message)
+    action = detect_action(user_id, message)
     if action:
         success = update_user_actions(user_id, action)
         if success:
@@ -153,12 +167,8 @@ def create_or_get_user():
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
 
-@app.route('/chat', methods=['POST', 'OPTIONS'])
+@app.route('/chat', methods=['POST'])
 def chat():
-    if request.method == 'OPTIONS':
-        # Preflgiht request. Reply successfully:
-        return jsonify({'success': True}), 200
-
     data = request.json
     response = chat_with_gradio(data['user_id'], data['message'])
     return jsonify({'response': response}), 200
