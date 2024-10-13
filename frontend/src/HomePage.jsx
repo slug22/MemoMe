@@ -34,7 +34,8 @@ function HomePage() {
     const userData = {
       user_id: name,
       base_info: info,
-      tasks: tasksArray
+      tasks: tasksArray,
+      helper_email: helperEmail // Include helperEmail in the userData object
     };
 
     try {
@@ -72,7 +73,7 @@ function HomePage() {
             type="text"
             id="name" 
             value={name}
-            onChange={handleNameChange}   
+            onChange={handleNameChange}   
             placeholder="Enter your name"
           />
 
@@ -105,6 +106,8 @@ function HomePage() {
 
           <button type="submit">Submit</button> 
         </form>
+
+        <button onClick={() => navigate('/helper')}>Check In Page</button>
       </div>
     </div>
   );
