@@ -123,3 +123,17 @@ button:hover {
 .error {
   color: red;
 }
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+}
+
+.back-button:hover {
+  color: #000;
+}
