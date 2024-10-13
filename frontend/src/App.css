@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  background-color: #fce4ec; /* Light Pink */
+  color: #5f5f5f;
+}
+
+.App {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #fef9e7; /* Light Beige */
+}
+
+.container {
+  background-color: #fff;
+  padding: 40px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+h1 {
+  color: #f48fb1; /* Soft Pink */
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+}
+
+.subtext {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  color: #5f5f5f;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+label {
+  font-size: 1.2rem;
+  margin-bottom: 8px; 
+  color: #5f5f5f; 
+  align-self: flex-start; /* Align labels to the left */
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 2px solid #f48fb1;
+  border-radius: 8px;
+  background-color: #fef9e7;
+  font-size: 1rem;
+  font-family: 'Quicksand', sans-serif;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #ff80ab;
+}
+
+button {
+  background-color: #f48fb1; /* Soft Pink */
+  color: white;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #ff80ab; /* Darker Pink */
+  transform: scale(1.1);
+  transition: 300ms;
+}

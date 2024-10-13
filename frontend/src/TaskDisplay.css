@@ -1,0 +1,43 @@
+/* TaskDisplay.css */
+.task-display-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #fce4ec; /* Light Pink */
+    font-family: 'Quicksand', sans-serif; 
+  }
+  
+  .task-box {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+  }
+  
+  .task-box h5 { /* Style the task text */
+    color: #f48fb1;
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+  
+  .task-box button { /* Style the buttons */
+    background-color: #f48fb1;
+    color: white;
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-bottom: 10px; /* Add spacing between buttons */
+  }
+  
+  .task-box button:hover {
+    background-color: #ff80ab;
+    transform: scale(1.05);
+    transition: 300ms;
+  }
