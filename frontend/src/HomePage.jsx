@@ -107,7 +107,7 @@ function HomePage() {
           <button type="submit">Submit</button> 
         </form>
 
-        <button onClick={() => navigate('/helper')}>Check In Page</button>
+       
       </div>
     </div>
   );
