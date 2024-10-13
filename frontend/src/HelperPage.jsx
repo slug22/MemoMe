@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import './App.css';
 
 function HelperPage() {
@@ -7,6 +8,7 @@ function HelperPage() {
     const [inputs, setInputs] = useState([]);
     const [error, setError] = useState('');
     const [showAll, setShowAll] = useState(false);
+    const navigate = useNavigate();
 
     const handleHelperEmailChange = (e) => {
         setHelperEmail(e.target.value);
@@ -44,6 +46,9 @@ function HelperPage() {
     return (
         <div className="App">
             <div className="container">
+            <button className="back-button" onClick={() => navigate('/')}>
+          &#8592;
+        </button> {/* Add back button with arrow */}
                 <h1>Helper Page</h1>
                 <input
                     type="email"
@@ -69,6 +74,7 @@ function HelperPage() {
                         <button onClick={handleShowMore}>Read More</button>
                     )}
                 </div>
+               
             </div>
         </div>
     );
