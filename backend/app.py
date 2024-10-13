@@ -184,7 +184,13 @@ def create_or_get_user():
         return json.dumps(user, cls=MongoJSONEncoder), 200, {'Content-Type': 'application/json'}
     except ValueError as e:
         return jsonify({'error': str(e)}), 400
-
+@app.route('/user/<user_id>/tasks', methods=['GET'])
+def get_tasks(user_id):
+    user = users_collection.find_one({'_id': user_id})
+    if user:
+        return jsonify({'tasks': user.get('tasks', [])}), 200
+    else:
+        return jsonify({'error': 'User not found'}), 404
 @app.route('/chat', methods=['POST'])
 def chat():
     data = request.json
