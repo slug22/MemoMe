@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Typography, Box } from '@mui/material';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './TaskDisplay.css';
 
 const TaskDisplay = () => {
   const location = useLocation();
   const user_id = location.state?.user_id;
+  const navigate = useNavigate();
 
   const [isListening, setIsListening] = useState(false);
   const [speechResult, setSpeechResult] = useState('');
@@ -82,6 +83,9 @@ const TaskDisplay = () => {
 
   return (
     <div className="task-display-container" style={{ backgroundColor: '#fef9e7', fontFamily: 'Quicksand, cursive, sans-serif' }}>
+      <button className="back-button" onClick={() => navigate('/')}>
+          &#8592;
+        </button> {/* Add back button with arrow */}
       {/* Container Box with white background */}
       <Box
         sx={{
@@ -156,6 +160,8 @@ const TaskDisplay = () => {
             </Typography>
           )}
         </Box>
+
+        
       </Box>
     </div>
   );
