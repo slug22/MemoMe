@@ -64,6 +64,9 @@ function HomePage() {
   return (
     <div className="App"> 
       <div className="container">
+      <button className="back-button" onClick={() => navigate('/')}>
+          &#8592;
+        </button> {/* Add back button with arrow */}
         <h1>Welcome to MemoMe</h1>
         <p className="subtext">Helping you care for someone with Alzheimer's, Dementia, or other memory impairments.</p>
 
@@ -107,7 +110,7 @@ function HomePage() {
           <button type="submit">Submit</button> 
         </form>
 
-       
+        
       </div>
     </div>
   );
