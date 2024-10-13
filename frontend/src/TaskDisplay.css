@@ -1,43 +1,76 @@
-/* TaskDisplay.css */
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500&display=swap");
+
 .task-display-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background-color: #fce4ec; /* Light Pink */
-    font-family: 'Quicksand', sans-serif; 
-  }
-  
-  .task-box {
-    background-color: #fff;
-    padding: 40px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    max-width: 500px;
-    width: 100%;
-  }
-  
-  .task-box h5 { /* Style the task text */
-    color: #f48fb1;
-    font-size: 2rem;
-    margin-bottom: 20px;
-  }
-  
-  .task-box button { /* Style the buttons */
-    background-color: #f48fb1;
-    color: white;
-    padding: 10px 20px;
-    font-size: 1.1rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin-bottom: 10px; /* Add spacing between buttons */
-  }
-  
-  .task-box button:hover {
-    background-color: #ff80ab;
-    transform: scale(1.05);
-    transition: 300ms;
-  }
+  display: flex;
+  flex-direction: column; /* Aligns items vertically */
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #fce4ec; /* Light Pink */
+  font-family: 'Montserrat', sans-serif; 
+}
+
+.task-box {
+  background-color: #fff;
+  padding: 10px;
+  padding-bottom: 16px;
+  border-radius: 10px;
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.task-box h5 { /* Style the task text */
+  color: #f48fb1;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.task-box button { /* Style the buttons */
+  background-color: #f48fb1;
+  color: white;
+  padding: 10px 20px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 10px; /* Add spacing between buttons */
+}
+
+.task-box button:hover {
+  background-color: #ff80ab;
+  transform: scale(1.05);
+  transition: 300ms;
+}
+
+.chat-response-box {
+  background-color: beige; 
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+  margin-top: 20px; /* Creates space between task box and chat response box */
+  font-family: "Montserrat", sans-serif;
+}
+
+.speech-result-box {
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.speech-result-box.show {
+  opacity: 1;
+}
+
+.task-list-box {
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.task-list-box.hide {
+  opacity: 0;
+}

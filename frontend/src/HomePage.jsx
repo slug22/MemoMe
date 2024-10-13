@@ -64,8 +64,8 @@ function HomePage() {
   return (
     <div className="App"> 
       <div className="container">
-        <h1>Welcome to MemoryMate</h1>
-        <p className="subtext">Helping you care for someone with Alzheimer's</p>
+        <h1>Welcome to MemoMe</h1>
+        <p className="subtext">Helping you care for someone with Alzheimer's, Dementia, or other memory impairments.</p>
 
         <form onSubmit={handleSubmit}> 
           <label htmlFor="name">Your Name:</label> 
@@ -107,7 +107,7 @@ function HomePage() {
           <button type="submit">Submit</button> 
         </form>
 
-        <button onClick={() => navigate('/helper')}>Check In Page</button>
+       
       </div>
     </div>
   );

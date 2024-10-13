@@ -36,24 +36,49 @@ h1 {
   margin-bottom: 10px;
 }
 
-.subtext {
-  font-size: 1.1rem;
-  margin-bottom: 20px;
-  color: #5f5f5f;
+
+.image-placeholder {
+  width: 120px; /* Smaller image */
+  height: 120px;
+  border-radius: 50%; /* Circular image */
+  background-color: #ccc;
+  margin: 20px auto;
+  background: url('logo.png') no-repeat center center;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.text-box {
+  width: 80%;
+  margin: 20px auto;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 10px; /* Rounded corners for text box */
 }
 
-label {
-  font-size: 1.2rem;
-  margin-bottom: 8px; 
-  color: #5f5f5f; 
-  align-self: flex-start; /* Align labels to the left */
+.login-button, 
+.registration-button, 
+.checkin-button {
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  margin: 10px 0; /* Vertical margin */
+  cursor: pointer;
 }
+
+
+.separator {
+  margin: 20px 0; /* Space around OR */
+  font-size: larger;
+  color: #f48fb1;
+}
+
+.button-container {
+  display: flex; /* Use flexbox for button spacing */
+  justify-content: space-around; /* Space buttons evenly */
+  width: 80%;
+  margin: 0 auto;
+}
+
 
 input,
 textarea {
@@ -88,38 +113,4 @@ button:hover {
   background-color: #ff80ab; /* Darker Pink */
   transform: scale(1.1);
   transition: 300ms;
-}
-
-
-.inputs-list-container {
-  max-height: 300px; /* Set a fixed height for the container */
-  overflow-y: auto; /* Enable vertical scrolling */
-  padding-right: 10px; /* Add some padding to avoid scrollbar overlap */
-}
-
-.inputs-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.input-item {
-  padding: 10px;
-  margin: 5px 0;
-  border-radius: 5px;
-}
-
-.input-item.urgent {
-  background-color: #ffcccc;
-}
-
-.input-item.action {
-  background-color: #ccffcc;
-}
-
-.input-item.other {
-  background-color: #ccccff;
-}
-
-.error {
-  color: red;
 }

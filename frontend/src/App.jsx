@@ -1,21 +1,22 @@
+
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import HomePage from './HomePage'; 
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import FrontPage from './FrontPage'; // Ensure this path is correct
+import HomePage from './HomePage';
 import TaskDisplay from './TaskDisplay';
 import HelperPage from './HelperPage';
-import Login from './Login'; // Import the Login component
 
-const App = () => {
+function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<FrontPage />} />
+        <Route path="/registration" element={<HomePage />} />
         <Route path="/tasks" element={<TaskDisplay />} />
-        <Route path="/helper" element={<HelperPage />} />
-        <Route path="/login" element={<Login />} /> {/* Add the Login route */}
+        <Route path="/checkin" element={<HelperPage />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
-};
+}
 
 export default App;
